@@ -488,32 +488,6 @@ $(CNTKLIBRARY_LIB): $(CNTKLIBRARY_OBJ) | $(CNTKMATH_LIB)
 	$(CXX) $(LDFLAGS) -shared $(patsubst %,-L%, $(LIBDIR) $(LIBPATH) $(GDK_NVML_LIB_PATH)) $(patsubst %,$(RPATH)%, $(ORIGINDIR) $(LIBPATH)) -o $@ $^ $(LIBS) -l$(CNTKMATH) $(PROTOBUF_PATH)/lib/libprotobuf.a -fopenmp
 
 ########################################
-# CNTKLibrary distribution tests
-########################################
-
-CNTKLIBRARY_TESTS_SRC_PATH =\
-    Tests/UnitTests/V2LibraryTests
-
-CNTKLIBRARY_DISTRIBUTION_TESTS_SRC =\
-	$(CNTKLIBRARY_TESTS_SRC_PATH)/Common.cpp \
-	Tests/UnitTests/V2LibraryDistributionTests/Main.cpp \
-	Tests/UnitTests/V2LibraryDistributionTests/FrameModeTests.cpp \
-
-CNTKLIBRARY_DISTRIBUTION_TESTS:=$(BINDIR)/v2librarydistributiontests
-CNTKLIBRARY_DISTRIBUTION_TESTS_OBJ := $(patsubst %.cu, $(OBJDIR)/%.o, $(patsubst %.cpp, $(OBJDIR)/%.o, $(CNTKLIBRARY_DISTRIBUTION_TESTS_SRC)))
-
-ALL+=$(CNTKLIBRARY_DISTRIBUTION_TESTS)
-SRC+=$(CNTKLIBRARY_DISTRIBUTION_TESTS_SRC)
-
-INCLUDEPATH+=$(CNTKLIBRARY_TESTS_SRC_PATH)
-
-$(CNTKLIBRARY_DISTRIBUTION_TESTS): $(CNTKLIBRARY_DISTRIBUTION_TESTS_OBJ) | $(CNTKLIBRARY_LIB) $(READER_LIBS)
-	@echo $(SEPARATOR)
-	@mkdir -p $(dir $@)
-	@echo building $@ for $(ARCH) with build type $(BUILDTYPE)
-	$(CXX) $(LDFLAGS) $(patsubst %,-L%, $(LIBDIR) $(LIBPATH) $(GDK_NVML_LIB_PATH)) $(patsubst %,$(RPATH)%, $(ORIGINLIBDIR) $(LIBPATH)) -o $@ $^ $(LIBS) -l$(CNTKLIBRARY) $(L_READER_LIBS)
-
-########################################
 # LibEval
 ########################################
 
@@ -1036,7 +1010,7 @@ $(CNTK_CORE_BS): $(SOURCEDIR)/CNTK/BrainScript/CNTKCoreLib/CNTK.core.bs
 	cp -f $^ $@
 
 ########################################
-# V2Library CifarResNetTests
+# CNTKLibrary distribution tests
 ########################################
 
 CNTKLIBRARY_END_TO_END_TESTS_SRC_PATH =\
@@ -1044,8 +1018,34 @@ CNTKLIBRARY_END_TO_END_TESTS_SRC_PATH =\
 
 CNTKLIBRARY_END_TO_END_COMMON_SRC_PATH =\
     $(CNTKLIBRARY_END_TO_END_TESTS_SRC_PATH)/Common
+    
+    INCLUDEPATH+=$(CNTKLIBRARY_END_TO_END_COMMON_SRC_PATH)
+    
+CNTKLIBRARY_TESTS_SRC_PATH =\
+    Tests/UnitTests/V2LibraryTests
 
-INCLUDEPATH+=$(CNTKLIBRARY_END_TO_END_COMMON_SRC_PATH)
+CNTKLIBRARY_DISTRIBUTION_TESTS_SRC =\
+	$(CNTKLIBRARY_END_TO_END_COMMON_SRC_PATH)/Common.cpp \
+	Tests/UnitTests/V2LibraryDistributionTests/Main.cpp \
+	Tests/UnitTests/V2LibraryDistributionTests/FrameModeTests.cpp \
+
+CNTKLIBRARY_DISTRIBUTION_TESTS:=$(BINDIR)/v2librarydistributiontests
+CNTKLIBRARY_DISTRIBUTION_TESTS_OBJ := $(patsubst %.cu, $(OBJDIR)/%.o, $(patsubst %.cpp, $(OBJDIR)/%.o, $(CNTKLIBRARY_DISTRIBUTION_TESTS_SRC)))
+
+ALL+=$(CNTKLIBRARY_DISTRIBUTION_TESTS)
+SRC+=$(CNTKLIBRARY_DISTRIBUTION_TESTS_SRC)
+
+INCLUDEPATH+=$(CNTKLIBRARY_TESTS_SRC_PATH)
+
+$(CNTKLIBRARY_DISTRIBUTION_TESTS): $(CNTKLIBRARY_DISTRIBUTION_TESTS_OBJ) | $(CNTKLIBRARY_LIB) $(READER_LIBS)
+	@echo $(SEPARATOR)
+	@mkdir -p $(dir $@)
+	@echo building $@ for $(ARCH) with build type $(BUILDTYPE)
+	$(CXX) $(LDFLAGS) $(patsubst %,-L%, $(LIBDIR) $(LIBPATH) $(GDK_NVML_LIB_PATH)) $(patsubst %,$(RPATH)%, $(ORIGINLIBDIR) $(LIBPATH)) -o $@ $^ $(LIBS) -l$(CNTKLIBRARY) $(L_READER_LIBS)
+
+########################################
+# V2Library CifarResNetTests
+########################################
 
 CNTKLIBRARY_CIFAR_TESTS_SRC_PATH =\
     $(CNTKLIBRARY_END_TO_END_TESTS_SRC_PATH)/CifarResNet
